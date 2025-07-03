@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Relabel Images</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container my-4">
+    <h3 class="mb-3">📝 Relabeling for Session {{ session.id }}</h3>
+
+    <table class="table table-bordered bg-white">
+        <thead class="table-light">
+            <tr>
+                <th>Image</th>
+                <th>Current Label</th>
+                <th>New Label</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in labeled_images %}
+            <tr>
+                <td>
+                    <img src="{{ item.image.image.url }}" class="img-thumbnail" style="max-height: 100px;">
+                </td>
+                <td>{{ item.label }}</td>
+                <td>
+                    <form method="POST" class="d-flex">
+                        {% csrf_token %}
+                        <input type="hidden" name="label_id" value="{{ item.id }}">
+                        <select name="new_label" class="form-select form-select-sm me-2" required>
+                            {% for cls in classes %}
+                                <option value="{{ cls }}" {% if cls == item.label %}selected{% endif %}>{{ cls }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Update</button>
+                    </form>
+                </td>
+                <td>
+                    <a href="{% url 'label' session.id %}" class="btn btn-sm btn-secondary">Back to Labeling</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

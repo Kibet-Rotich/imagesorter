@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Label Images</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container my-4">
+
+    <div class="d-flex justify-content-between align-items-center">
+        <h4>Labeling Session: {{ session.id }}</h4>
+        <a href="{% url 'session_list' %}" class="btn btn-sm btn-outline-dark">← All Sessions</a>
+    </div>
+
+    <p>Progress: {{ done }}/{{ total }} labeled | {{ remaining }} remaining</p>
+    <p>Image {{ current_index|add:1 }} of {{ total }}</p>
+
+    <div class="text-center">
+        <img src="{{ image.image.url }}" class="img-fluid rounded shadow" style="max-height: 400px;">
+    </div>
+
+    <form id="label-form" method="POST" action="{% url 'save_label' %}" class="mt-4 text-center">
+        {% csrf_token %}
+        <input type="hidden" name="image_id" value="{{ image.id }}">
+        <input type="hidden" name="index" value="{{ current_index }}">
+
+        <div class="d-flex flex-wrap justify-content-center">
+            {% for cls in classes %}
+                <button type="submit" name="label" value="{{ cls }}"
+                        class="btn {% if cls == current_label %}btn-primary{% else %}btn-outline-primary{% endif %} m-2">
+                    {{ cls }}
+                </button>
+            {% endfor %}
+        </div>
+    </form>
+
+    <div class="d-flex justify-content-between mt-4">
+        {% if current_index > 0 %}
+            <a href="?index={{ current_index|add:-1 }}" class="btn btn-secondary">← Back</a>
+        {% else %}
+            <div></div>
+        {% endif %}
+
+        {% if current_index < total|add:"-1" %}
+            <a href="?index={{ current_index|add:1 }}" class="btn btn-secondary">Skip →</a>
+        {% endif %}
+    </div>
+
+    {% if is_labeled %}
+        <p class="text-center mt-3 text-success">✅ Labeled: <strong>{{ current_label }}</strong></p>
+    {% else %}
+        <p class="text-center mt-3 text-warning">⏳ Not labeled yet</p>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{% url 'download_zips' session.id %}" class="btn btn-success">
+            📦 Download Labeled Images (So Far)
+        </a>
+    </div>
+
+</div>
+</body>
+</html>
